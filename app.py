@@ -3,6 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="AlphaSlabs", layout="wide")
 
+# Custom background
 st.markdown("""
     <style>
         body {
@@ -44,7 +45,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Logo + slogan
+# Logo + tagline
 st.image("images/logo.png", width=200)
 st.markdown("<h2 style='text-align:center; color:white;'>Built for collectors. Powered by alpha.</h2>", unsafe_allow_html=True)
 
@@ -57,7 +58,7 @@ with col2:
 with col3:
     flip_score_min = st.slider("Flip Score Min", 0, 50, 10)
 
-# Sample data
+# Sample card data
 data = [
     {
         "Card": "2020 Topps Chrome Luis Robert PSA 10",
@@ -74,23 +75,56 @@ data = [
         "Flip Score": 16.0,
         "Link": "https://www.ebay.com/itm/2345678901",
         "Image": "https://i.imgur.com/UhVb5zk.png"
+    },
+    {
+        "Card": "2000 Pokémon Charizard Holo Base Set",
+        "Price": 120.00,
+        "Avg Sold": 200.00,
+        "Flip Score": 25.0,
+        "Link": "https://www.ebay.com/itm/1111111111",
+        "Image": "https://i.imgur.com/UhVb5zk.png"
+    },
+    {
+        "Card": "2023 UFC Chrome Paddy Pimblett Rookie",
+        "Price": 35.00,
+        "Avg Sold": 50.00,
+        "Flip Score": 12.0,
+        "Link": "https://www.ebay.com/itm/2222222222",
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     }
 ]
 
 df = pd.DataFrame(data)
 
-# Apply filters
+# Filters
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
 if search_query:
     df = df[df["Card"].str.contains(search_query, case=False)]
 
-# Show each card inside tab-style layout
+# Icon assignment
+def get_card_icon(name):
+    name = name.lower()
+    if any(word in name for word in ["pokemon", "charizard", "wotc"]):
+        return "🔴"
+    elif any(word in name for word in ["topps", "bowman", "mlb"]):
+        return "⚾️"
+    elif any(word in name for word in ["nfl", "select", "panini", "prizm"]):
+        return "🏈"
+    elif any(word in name for word in ["soccer", "futbol"]):
+        return "⚽️"
+    elif any(word in name for word in ["ufc", "octagon", "fight", "pimblett"]):
+        return "🥊"
+    else:
+        return "🎴"
+
+# Render listings
 for _, row in df.iterrows():
+    icon = get_card_icon(row['Card'])
     st.markdown(f"""
         <div class="baseball-tab">
             <img src="{row['Image']}" width="120" class="card-img">
             <div class="card-info">
-                <h4>⚾ {row['Card']}</h4>
+                <h4>{icon} {row['Card']}</h4>
                 <p class="price">💰 ${row['Price']} &nbsp; | &nbsp; Avg: ${row['Avg Sold']}</p>
                 <p class="flip-score">Flip Score: {'🔥' if row['Flip Score'] > 15 else '⚠️'} {row['Flip Score']}</p>
                 <a href="{row['Link']}" class="view-btn" target="_blank">View on eBay</a>
