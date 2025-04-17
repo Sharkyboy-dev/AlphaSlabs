@@ -45,7 +45,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ✅ CENTERED LOGO + SLOGAN (cloud-safe)
+# === LOGO + SLOGAN CENTERED ===
 st.markdown(
     """
     <div style='text-align: center;'>
@@ -55,6 +55,9 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# === CATEGORY DROPDOWN ===
+category = st.selectbox("🗂️ Select Category", ["All", "Baseball", "Basketball", "Football", "UFC", "Pokémon", "Soccer", "Other"])
 
 # === FILTERS ===
 col1, col2, col3 = st.columns(3)
@@ -73,7 +76,8 @@ data = [
         "Avg Sold": 60.00,
         "Flip Score": 17.5,
         "Link": "https://www.ebay.com/itm/1234567890",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
+        "Image": "https://i.imgur.com/UhVb5zk.png",
+        "Category": "Baseball"
     },
     {
         "Card": "2019 Prizm Ja Morant Rookie PSA 10",
@@ -81,7 +85,8 @@ data = [
         "Avg Sold": 88.00,
         "Flip Score": 16.0,
         "Link": "https://www.ebay.com/itm/2345678901",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
+        "Image": "https://i.imgur.com/UhVb5zk.png",
+        "Category": "Basketball"
     },
     {
         "Card": "2000 Pokémon Charizard Holo Base Set",
@@ -89,7 +94,8 @@ data = [
         "Avg Sold": 200.00,
         "Flip Score": 25.0,
         "Link": "https://www.ebay.com/itm/1111111111",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
+        "Image": "https://i.imgur.com/UhVb5zk.png",
+        "Category": "Pokémon"
     },
     {
         "Card": "2023 UFC Chrome Paddy Pimblett Rookie",
@@ -97,11 +103,18 @@ data = [
         "Avg Sold": 50.00,
         "Flip Score": 12.0,
         "Link": "https://www.ebay.com/itm/2222222222",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
+        "Image": "https://i.imgur.com/UhVb5zk.png",
+        "Category": "UFC"
     }
 ]
 
 df = pd.DataFrame(data)
+
+# === FILTER BY CATEGORY ===
+if category != "All":
+    df = df[df["Category"] == category]
+
+# === ADDITIONAL FILTERS ===
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
 if search_query:
     df = df[df["Card"].str.contains(search_query, case=False)]
