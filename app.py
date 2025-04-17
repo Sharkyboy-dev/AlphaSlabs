@@ -1,16 +1,55 @@
 import streamlit as st
 import pandas as pd
 
-# ✅ Logo centered using Streamlit layout (NO broken img tag)
+st.set_page_config(page_title="AlphaSlabs", layout="wide")
+
+# === STYLES ===
+st.markdown("""
+    <style>
+        body {
+            background: url('https://i.imgur.com/FkJEmZB.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .baseball-tab {
+            display: flex;
+            align-items: center;
+            background-color: #00264d;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 0 10px #000;
+        }
+        .card-img {
+            margin-right: 1rem;
+            border-radius: 8px;
+        }
+        .card-info {
+            color: white;
+            font-family: sans-serif;
+        }
+        .price {
+            color: #ffd700;
+            font-size: 1rem;
+        }
+        .flip-score {
+            font-weight: bold;
+        }
+        .view-btn {
+            background-color: #1e88e5;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# === CENTERED LOGO + SLOGAN ===
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.image("images/logo.png", width=200)
-
-# Slogan centered
-st.markdown(
-    "<h2 style='text-align: center; color: white;'>Built for collectors. Powered by alpha.</h2>",
-    unsafe_allow_html=True
-)
+st.markdown("<h2 style='text-align:center; color:white;'>Built for collectors. Powered by alpha.</h2>", unsafe_allow_html=True)
 
 
 # Custom background
