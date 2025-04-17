@@ -1,3 +1,4 @@
+# AlphaSlabs Streamlit MVP with Dynamic Flip Score Logic
 import streamlit as st
 import pandas as pd
 
@@ -50,36 +51,16 @@ st.markdown("""
             margin-top: 1.5rem;
             margin-bottom: 1.5rem;
         }
-        .search-select, .search-box {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-        .search-box {
-            width: 300px;
-        }
-        .search-btn {
-            background-color: #1e88e5;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
     </style>
 """, unsafe_allow_html=True)
 
 # === LOGO + SLOGAN ===
-st.markdown(
-    """
+st.markdown("""
     <div style='text-align: center;'>
         <img src='https://raw.githubusercontent.com/Sharkyboy-dev/AlphaSlabs/main/images/logo.png' width='220'>
         <h2 style='color: white;'>Built for collectors. Powered by alpha.</h2>
     </div>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # === SEARCH BAR UI ===
 st.markdown("""
@@ -107,7 +88,7 @@ with col_slider1:
 
 center3, col_slider2, center4 = st.columns([1, 2, 1])
 with col_slider2:
-    flip_score_min = st.slider("Flip Score Min", 0, 50, 5)
+    flip_score_min = st.slider("Flip Score Min", 0, 100, 10)
 
 # === SAMPLE CARD DATA ===
 data = [
@@ -115,7 +96,6 @@ data = [
         "Card": "2020 Topps Chrome Luis Robert PSA 10",
         "Price": 42.50,
         "Avg Sold": 60.00,
-        "Flip Score": 17.5,
         "Link": "https://www.ebay.com/itm/1234567890",
         "Image": "https://i.imgur.com/UhVb5zk.png",
         "Category": "Baseball"
@@ -124,7 +104,6 @@ data = [
         "Card": "2019 Prizm Ja Morant Rookie PSA 10",
         "Price": 72.00,
         "Avg Sold": 88.00,
-        "Flip Score": 16.0,
         "Link": "https://www.ebay.com/itm/2345678901",
         "Image": "https://i.imgur.com/UhVb5zk.png",
         "Category": "Basketball"
@@ -133,7 +112,6 @@ data = [
         "Card": "2000 Pokémon Charizard Holo Base Set",
         "Price": 120.00,
         "Avg Sold": 200.00,
-        "Flip Score": 25.0,
         "Link": "https://www.ebay.com/itm/1111111111",
         "Image": "https://i.imgur.com/UhVb5zk.png",
         "Category": "Pokémon"
@@ -142,28 +120,35 @@ data = [
         "Card": "2023 UFC Chrome Paddy Pimblett Rookie",
         "Price": 35.00,
         "Avg Sold": 50.00,
-        "Flip Score": 12.0,
         "Link": "https://www.ebay.com/itm/2222222222",
         "Image": "https://i.imgur.com/UhVb5zk.png",
         "Category": "UFC"
     }
 ]
 
+# Calculate Flip Score (% Upside)
 df = pd.DataFrame(data)
+df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Price"] * 100).round(1)
 
-# === FILTERS (static for now) ===
-search_query = ""
-category = "All"
-
-if category != "All":
-    df = df[df["Category"] == category]
-
+# Filter
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
 
-# === ICONS BY CARD TYPE ===
-def get_card_icon(name):
+# === EMOJI SCORING TIERS ===
+def get_icon(score):
+    if score >= 100:
+        return "🧨"
+    elif score >= 50:
+        return "🔥"
+    elif score >= 25:
+        return "⚠️"
+    elif score >= 10:
+        return "🧊"
+    else:
+        return "🚫"
+
+def get_type_emoji(name):
     name = name.lower()
-    if any(word in name for word in ["pokemon", "charizard", "wotc"]):
+    if any(word in name for word in ["pokemon", "charizard"]):
         return "🔴"
     elif any(word in name for word in ["topps", "bowman", "mlb"]):
         return "⚾️"
@@ -171,21 +156,22 @@ def get_card_icon(name):
         return "🏈"
     elif any(word in name for word in ["soccer", "futbol"]):
         return "⚽️"
-    elif any(word in name for word in ["ufc", "octagon", "fight", "pimblett"]):
+    elif any(word in name for word in ["ufc", "octagon"]):
         return "🥊"
     else:
         return "🎴"
 
-# === DISPLAY CARD LISTINGS ===
+# === DISPLAY CARDS ===
 for _, row in df.iterrows():
-    icon = get_card_icon(row['Card'])
+    type_icon = get_type_emoji(row['Card'])
+    tier_icon = get_icon(row['Flip Score'])
     st.markdown(f"""
         <div class="baseball-tab">
             <img src="{row['Image']}" width="120" class="card-img">
             <div class="card-info">
-                <h4>{icon} {row['Card']}</h4>
+                <h4>{type_icon} {row['Card']}</h4>
                 <p class="price">💰 ${row['Price']} &nbsp; | &nbsp; Avg: ${row['Avg Sold']}</p>
-                <p class="flip-score">Flip Score: {'🔥' if row['Flip Score'] > 15 else '⚠️'} {row['Flip Score']}</p>
+                <p class="flip-score">Flip Score: {tier_icon} {row['Flip Score']}%</p>
                 <a href="{row['Link']}" class="view-btn" target="_blank">View on eBay</a>
             </div>
         </div>
