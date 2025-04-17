@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Flip Score Sorting, Search, Dynamic Logic + AutoTag + Best Deals Tab
+# AlphaSlabs Streamlit MVP with Flip Score Sorting, Search, Dynamic Logic + AutoTag + Best Deals Tab + Best Flip Badge
 import streamlit as st
 import pandas as pd
 import os
@@ -184,14 +184,17 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # === DISPLAY CARDS ===
+best_score = df["Flip Score"].max() if not df.empty else None
+
 for _, row in df.iterrows():
     type_icon = get_type_emoji(row['Card'])
     tier_icon = get_icon(row['Flip Score'])
+    badge = "<span style='background:#ffd700;color:#000;padding:4px 8px;border-radius:6px;margin-left:10px;'>🏆 Best Flip</span>" if row["Flip Score"] == best_score and best_score is not None else ""
     st.markdown(f"""
         <div class="baseball-tab">
             <img src="{row['Image']}" width="120" class="card-img">
             <div class="card-info">
-                <h4>{type_icon} {row['Card']}</h4>
+                <h4>{type_icon} {row['Card']} {badge}</h4>
                 <p class="price">💰 ${row['Price']} &nbsp; | &nbsp; Avg: ${row['Avg Sold']}</p>
                 <p class="flip-score">Flip Score: {tier_icon} {row['Flip Score']}%</p>
                 <a href="{row['Link']}" class="view-btn" target="_blank">View on eBay</a>
