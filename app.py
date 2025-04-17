@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Full Layout Polishing
+# AlphaSlabs Streamlit MVP with Full Layout Polishing + Shadcn-Style Enhancements
 import streamlit as st
 import pandas as pd
 import os
@@ -10,7 +10,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# === MODERN STYLES ===
+# === MODERN SHADCN-INSPIRED STYLES ===
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -19,15 +19,21 @@ st.markdown("""
             background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
         }
         .main-wrapper {
-            max-width: 1000px;
+            max-width: 960px;
             margin: auto;
             padding: 2rem 1rem;
         }
         .filter-section {
-            max-width: 800px;
-            margin: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
             padding-top: 1rem;
             padding-bottom: 2rem;
+        }
+        .input-group label {
+            color: #f0f0f0;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
         }
         .navbar {
             display: flex;
@@ -51,7 +57,7 @@ st.markdown("""
         }
         .logo-container {
             text-align: center;
-            margin: 1.5rem 0 0.5rem;
+            margin: 2rem 0 1rem;
         }
         .logo-container h2 {
             color: #f0f0f0;
@@ -69,6 +75,11 @@ st.markdown("""
             padding: 1rem;
             border-radius: 14px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s;
+        }
+        .baseball-tab:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
         .card-img {
             margin-right: 1rem;
@@ -166,23 +177,29 @@ if selected_file:
         # === FILTER SECTION WRAPPER START ===
         st.markdown("<div class='filter-section'>", unsafe_allow_html=True)
 
-        search_term = st.text_input(f"Search {selected}")
+        st.markdown("<div class='input-group'><label>Search</label>", unsafe_allow_html=True)
+        search_term = st.text_input("", label_visibility="collapsed")
+        st.markdown("</div>", unsafe_allow_html=True)
         df = df[df["Card"].str.contains(search_term, case=False)] if search_term else df
 
-        price_range = st.slider(f"Price Range ({selected})", 0, 500, (10, 100))
+        st.markdown("<div class='input-group'><label>Price Range</label>", unsafe_allow_html=True)
+        price_range = st.slider("", 0, 500, (10, 100), label_visibility="collapsed")
         df = df[(df["Price"] >= price_range[0]) & (df["Price"] <= price_range[1])]
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        min_score = st.slider(f"Flip Score Min ({selected})", 0, 100, 10)
+        st.markdown("<div class='input-group'><label>Flip Score Min</label>", unsafe_allow_html=True)
+        min_score = st.slider("", 0, 100, 10, label_visibility="collapsed")
+        st.markdown("</div>", unsafe_allow_html=True)
+
         df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Avg Sold"] * 100).round(1)
         df = df[df["Flip Score"] >= min_score]
 
         sort_option = st.selectbox("Sort By", ["Flip Score (High to Low)", "Flip Score (Low to High)"])
         df = df.sort_values("Flip Score", ascending=(sort_option == "Flip Score (Low to High)"))
 
-        # === FILTER SECTION WRAPPER END ===
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Display
+        # === DISPLAY CARDS ===
         st.markdown(f"""<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Best Flip Opportunities</h4>""", unsafe_allow_html=True)
         with st.container():
             for _, row in df.iterrows():
