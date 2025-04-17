@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Full Layout Polishing + Shadcn-Style Enhancements
+# AlphaSlabs Streamlit MVP with Full Layout Polishing + Centered Filter Layout
 import streamlit as st
 import pandas as pd
 import os
@@ -10,7 +10,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# === MODERN SHADCN-INSPIRED STYLES ===
+# === MODERN STYLES ===
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -23,12 +23,13 @@ st.markdown("""
             margin: auto;
             padding: 2rem 1rem;
         }
-        .filter-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            padding-top: 1rem;
-            padding-bottom: 2rem;
+        .filter-wrapper {
+            max-width: 700px;
+            margin: 2rem auto 0;
+            padding: 1rem 2rem;
+            background-color: #111;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
         .input-group label {
             color: #f0f0f0;
@@ -58,10 +59,6 @@ st.markdown("""
         .logo-container {
             text-align: center;
             margin: 2rem 0 1rem;
-        }
-        .logo-container h2 {
-            color: #f0f0f0;
-            font-weight: 500;
         }
         .card-container {
             display: flex;
@@ -112,9 +109,6 @@ st.markdown("""
             font-weight: 500;
             display: inline-block;
             margin-top: 0.5rem;
-        }
-        .view-btn:hover {
-            opacity: 0.9;
         }
         .css-1aehpvj {
             font-size: 16px !important;
@@ -174,23 +168,17 @@ if selected_file:
     if os.path.exists(data_path):
         df = pd.read_csv(data_path)
 
-        # === FILTER SECTION WRAPPER START ===
-        st.markdown("<div class='filter-section'>", unsafe_allow_html=True)
+        # === FILTERS IN CENTERED CONTAINER ===
+        st.markdown("<div class='filter-wrapper'>", unsafe_allow_html=True)
 
-        st.markdown("<div class='input-group'><label>Search</label>", unsafe_allow_html=True)
-        search_term = st.text_input("", label_visibility="collapsed")
-        st.markdown("</div>", unsafe_allow_html=True)
-        df = df[df["Card"].str.contains(search_term, case=False)] if search_term else df
+        search_term = st.text_input("Search " + selected, label_visibility="visible")
+        if search_term:
+            df = df[df["Card"].str.contains(search_term, case=False)]
 
-        st.markdown("<div class='input-group'><label>Price Range</label>", unsafe_allow_html=True)
-        price_range = st.slider("", 0, 500, (10, 100), label_visibility="collapsed")
+        price_range = st.slider("Price Range (" + selected + ")", 0, 500, (10, 100))
         df = df[(df["Price"] >= price_range[0]) & (df["Price"] <= price_range[1])]
-        st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("<div class='input-group'><label>Flip Score Min</label>", unsafe_allow_html=True)
-        min_score = st.slider("", 0, 100, 10, label_visibility="collapsed")
-        st.markdown("</div>", unsafe_allow_html=True)
-
+        min_score = st.slider("Flip Score Min (" + selected + ")", 0, 100, 10)
         df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Avg Sold"] * 100).round(1)
         df = df[df["Flip Score"] >= min_score]
 
