@@ -82,24 +82,18 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# === SEARCH BAR UI ===
-st.markdown("""
-    <div class="search-row">
-        <form action="" method="get">
-            <select name="category" class="search-select">
-                <option>All Categories</option>
-                <option>Baseball</option>
-                <option>Basketball</option>
-                <option>Football</option>
-                <option>UFC</option>
-                <option>Pokémon</option>
-                <option>Soccer</option>
-            </select>
-            <input name="search" class="search-box" placeholder="Search cards, players, teams, boxes, brands, sets...">
-            <button class="search-btn">🔍</button>
-        </form>
-    </div>
-""", unsafe_allow_html=True)
+# === CATEGORY CSV SELECTOR ===
+available_csvs = {
+    "Baseball": "baseball_cards.csv",
+    "Basketball": "basketball_cards.csv",
+    "Football": "football_cards.csv",
+    "Pokémon": "pokemon_cards.csv",
+    "UFC": "ufc_cards.csv",
+    "Soccer": "soccer_cards.csv"
+}
+
+selected_category = st.selectbox("Choose Card Category", list(available_csvs.keys()))
+data_file = os.path.join("data", available_csvs[selected_category])
 
 # === CENTERED SLIDERS ===
 center1, col_slider1, center2 = st.columns([1, 2, 1])
@@ -111,12 +105,11 @@ with col_slider2:
     flip_score_min = st.slider("Flip Score Min", 0, 100, 10, key="score_slider")
 
 # === SAFE FILE LOAD ===
-data_path = os.path.join("data", "baseball_cards.csv")
-if not os.path.exists(data_path):
-    st.error("❌ baseball_cards.csv not found in /data folder. Please upload it.")
+if not os.path.exists(data_file):
+    st.error(f"❌ {data_file} not found. Please upload it to /data.")
     st.stop()
 
-data = pd.read_csv(data_path)
+data = pd.read_csv(data_file)
 
 # === AUTOTAG BY KEYWORD ===
 def auto_tag(card_name):
