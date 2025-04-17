@@ -45,8 +45,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Logo + tagline
-st.image("images/logo.png", width=200)
+# ✅ Centered logo + tagline
+st.markdown(
+    "<div style='text-align: center;'><img src='images/logo.png' width='200'></div>",
+    unsafe_allow_html=True
+)
 st.markdown("<h2 style='text-align:center; color:white;'>Built for collectors. Powered by alpha.</h2>", unsafe_allow_html=True)
 
 # Filters
@@ -96,12 +99,12 @@ data = [
 
 df = pd.DataFrame(data)
 
-# Filters
+# Apply filters
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
 if search_query:
     df = df[df["Card"].str.contains(search_query, case=False)]
 
-# Icon assignment
+# 🧠 Auto-icon by keyword
 def get_card_icon(name):
     name = name.lower()
     if any(word in name for word in ["pokemon", "charizard", "wotc"]):
@@ -117,7 +120,7 @@ def get_card_icon(name):
     else:
         return "🎴"
 
-# Render listings
+# Display cards in styled tabs
 for _, row in df.iterrows():
     icon = get_card_icon(row['Card'])
     st.markdown(f"""
