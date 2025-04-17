@@ -81,7 +81,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# === CUSTOM SEARCH UI (mocked HTML look) ===
+# === CUSTOM SEARCH UI ===
 st.markdown("""
     <div class="search-row">
         <form action="" method="get">
@@ -100,9 +100,9 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# === STREAMLIT FILTERS ===
-category = st.selectbox("Category Filter", ["All", "Baseball", "Basketball", "Football", "UFC", "Pokémon", "Soccer", "Other"])
-search_query = st.text_input("Search")
+# === STREAMLIT FILTERS (visible only to backend, not UI) ===
+category = "All"  # default value
+search_query = ""  # placeholder
 min_price, max_price = st.slider("Price Range", 0, 500, (10, 100))
 flip_score_min = st.slider("Flip Score Min", 0, 50, 10)
 
