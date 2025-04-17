@@ -42,10 +42,35 @@ st.markdown("""
             border-radius: 6px;
             text-decoration: none;
         }
+        .search-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .search-select, .search-box {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .search-box {
+            width: 300px;
+        }
+        .search-btn {
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# === LOGO + SLOGAN CENTERED ===
+# === LOGO + SLOGAN ===
 st.markdown(
     """
     <div style='text-align: center;'>
@@ -56,17 +81,30 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# === CATEGORY DROPDOWN ===
-category = st.selectbox("🗂️ Select Category", ["All", "Baseball", "Basketball", "Football", "UFC", "Pokémon", "Soccer", "Other"])
+# === CUSTOM SEARCH UI (mocked HTML look) ===
+st.markdown("""
+    <div class="search-row">
+        <form action="" method="get">
+            <select name="category" class="search-select">
+                <option>All Categories</option>
+                <option>Baseball</option>
+                <option>Basketball</option>
+                <option>Football</option>
+                <option>UFC</option>
+                <option>Pokémon</option>
+                <option>Soccer</option>
+            </select>
+            <input name="search" class="search-box" placeholder="Search cards, players, teams, boxes, brands, sets...">
+            <button class="search-btn">🔍</button>
+        </form>
+    </div>
+""", unsafe_allow_html=True)
 
-# === FILTERS ===
-col1, col2, col3 = st.columns(3)
-with col1:
-    search_query = st.text_input("Search", "")
-with col2:
-    min_price, max_price = st.slider("Price Range", 0, 500, (10, 100))
-with col3:
-    flip_score_min = st.slider("Flip Score Min", 0, 50, 10)
+# === STREAMLIT FILTERS ===
+category = st.selectbox("Category Filter", ["All", "Baseball", "Basketball", "Football", "UFC", "Pokémon", "Soccer", "Other"])
+search_query = st.text_input("Search")
+min_price, max_price = st.slider("Price Range", 0, 500, (10, 100))
+flip_score_min = st.slider("Flip Score Min", 0, 50, 10)
 
 # === SAMPLE CARD DATA ===
 data = [
@@ -110,11 +148,10 @@ data = [
 
 df = pd.DataFrame(data)
 
-# === FILTER BY CATEGORY ===
+# === APPLY FILTERS ===
 if category != "All":
     df = df[df["Category"] == category]
 
-# === ADDITIONAL FILTERS ===
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
 if search_query:
     df = df[df["Card"].str.contains(search_query, case=False)]
