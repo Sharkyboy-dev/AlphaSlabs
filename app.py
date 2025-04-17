@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Flip Score Sorting, Search, Dynamic Logic + AutoTag + Best Deals Tab + Best Flip Badge
+# AlphaSlabs Streamlit MVP with Flip Score Sorting, Search, Dynamic Logic + AutoTag + Best Deals Tab + Best Flip Badge + Category Tabs
 import streamlit as st
 import pandas as pd
 import os
@@ -44,33 +44,6 @@ st.markdown("""
             border-radius: 6px;
             text-decoration: none;
         }
-        .search-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .search-box, .search-select {
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 6px;
-            border: none;
-            outline: none;
-        }
-        .search-box {
-            width: 300px;
-        }
-        .search-btn {
-            background-color: #1e88e5;
-            color: white;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -82,122 +55,111 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# === CATEGORY CSV SELECTOR ===
-available_csvs = {
-    "Baseball": "baseball_cards.csv",
-    "Basketball": "basketball_cards.csv",
-    "Football": "football_cards.csv",
-    "Pokémon": "pokemon_cards.csv",
-    "UFC": "ufc_cards.csv",
-    "Soccer": "soccer_cards.csv"
-}
+# === CATEGORY TABS ===
+categories = [
+    ("Baseball", "baseball_cards.csv"),
+    ("Basketball", "basketball_cards.csv"),
+    ("Football", "football_cards.csv"),
+    ("Pokémon", "pokemon_cards.csv"),
+    ("UFC", "ufc_cards.csv"),
+    ("Soccer", "soccer_cards.csv")
+]
 
-selected_category = st.selectbox("Choose Card Category", list(available_csvs.keys()))
-data_file = os.path.join("data", available_csvs[selected_category])
+tab_objects = st.tabs([c[0] for c in categories])
 
-# === SEARCH FIELD ===
-search_term = st.text_input("Search by keyword (card, player, team, brand)", "")
+for i, tab in enumerate(tab_objects):
+    with tab:
+        category_name, csv_file = categories[i]
+        data_path = os.path.join("data", csv_file)
 
-# === CENTERED SLIDERS ===
-center1, col_slider1, center2 = st.columns([1, 2, 1])
-with col_slider1:
-    min_price, max_price = st.slider("Price Range", 0, 500, (10, 100), key="price_slider")
+        if not os.path.exists(data_path):
+            st.warning(f"❌ {csv_file} not found.")
+            continue
 
-center3, col_slider2, center4 = st.columns([1, 2, 1])
-with col_slider2:
-    flip_score_min = st.slider("Flip Score Min", 0, 100, 10, key="score_slider")
+        data = pd.read_csv(data_path)
 
-# === SAFE FILE LOAD ===
-if not os.path.exists(data_file):
-    st.error(f"❌ {data_file} not found. Please upload it to /data.")
-    st.stop()
+        search_term = st.text_input(f"Search {category_name}", "", key=f"search_{i}")
+        min_price, max_price = st.slider(f"Price Range ({category_name})", 0, 500, (10, 100), key=f"price_{i}")
+        flip_score_min = st.slider(f"Flip Score Min ({category_name})", 0, 100, 10, key=f"score_{i}")
 
-data = pd.read_csv(data_file)
+        def auto_tag(card_name):
+            name = card_name.lower()
+            if "pokemon" in name or "charizard" in name:
+                return "Pokémon"
+            elif "ufc" in name or "pimblett" in name:
+                return "UFC"
+            elif "mlb" in name or "topps" in name or "ohtani" in name:
+                return "Baseball"
+            elif "mahomes" in name or "panini" in name or "nfl" in name or "mac jones" in name:
+                return "Football"
+            elif "ja morant" in name or "prizm" in name:
+                return "Basketball"
+            elif "soccer" in name or "futbol" in name:
+                return "Soccer"
+            else:
+                return "Other"
 
-# === AUTOTAG BY KEYWORD ===
-def auto_tag(card_name):
-    name = card_name.lower()
-    if "pokemon" in name or "charizard" in name:
-        return "Pokémon"
-    elif "ufc" in name or "pimblett" in name:
-        return "UFC"
-    elif "mlb" in name or "topps" in name or "ohtani" in name:
-        return "Baseball"
-    elif "mahomes" in name or "panini" in name or "nfl" in name or "mac jones" in name:
-        return "Football"
-    elif "ja morant" in name or "prizm" in name:
-        return "Basketball"
-    elif "soccer" in name or "futbol" in name:
-        return "Soccer"
-    else:
-        return "Other"
+        data["Category"] = data["Card"].apply(auto_tag)
+        data["Flip Score"] = ((data["Avg Sold"] - data["Price"]) / data["Price"] * 100).round(1)
 
-data["Category"] = data["Card"].apply(auto_tag)
-data["Flip Score"] = ((data["Avg Sold"] - data["Price"]) / data["Price"] * 100).round(1)
+        def get_icon(score):
+            if score >= 100:
+                return "🧨"
+            elif score >= 50:
+                return "🔥"
+            elif score >= 25:
+                return "⚠️"
+            elif score >= 10:
+                return "🧊"
+            else:
+                return "🚫"
 
-# === EMOJI SCORING TIERS ===
-def get_icon(score):
-    if score >= 100:
-        return "🧨"
-    elif score >= 50:
-        return "🔥"
-    elif score >= 25:
-        return "⚠️"
-    elif score >= 10:
-        return "🧊"
-    else:
-        return "🚫"
+        def get_type_emoji(name):
+            name = name.lower()
+            if any(word in name for word in ["pokemon", "charizard"]):
+                return "🔴"
+            elif any(word in name for word in ["topps", "bowman", "mlb"]):
+                return "⚾️"
+            elif any(word in name for word in ["nfl", "select", "panini", "prizm"]):
+                return "🏈"
+            elif any(word in name for word in ["soccer", "futbol"]):
+                return "⚽️"
+            elif any(word in name for word in ["ufc", "octagon"]):
+                return "🥊"
+            else:
+                return "🎴"
 
-def get_type_emoji(name):
-    name = name.lower()
-    if any(word in name for word in ["pokemon", "charizard"]):
-        return "🔴"
-    elif any(word in name for word in ["topps", "bowman", "mlb"]):
-        return "⚾️"
-    elif any(word in name for word in ["nfl", "select", "panini", "prizm"]):
-        return "🏈"
-    elif any(word in name for word in ["soccer", "futbol"]):
-        return "⚽️"
-    elif any(word in name for word in ["ufc", "octagon"]):
-        return "🥊"
-    else:
-        return "🎴"
+        df = data[(data["Price"] >= min_price) & (data["Price"] <= max_price) & (data["Flip Score"] >= flip_score_min)]
 
-# === FILTERED DATAFRAME ===
-df = data[(data["Price"] >= min_price) & (data["Price"] <= max_price) & (data["Flip Score"] >= flip_score_min)]
+        if search_term:
+            df = df[df["Card"].str.contains(search_term, case=False)]
 
-if search_term:
-    df = df[df["Card"].str.contains(search_term, case=False)]
+        sort_by = st.selectbox("Sort By", ["Flip Score (High to Low)", "Price (Low to High)", "Price (High to Low)"], key=f"sort_{i}")
+        if sort_by == "Flip Score (High to Low)":
+            df = df.sort_values(by="Flip Score", ascending=False)
+        elif sort_by == "Price (Low to High)":
+            df = df.sort_values(by="Price", ascending=True)
+        elif sort_by == "Price (High to Low)":
+            df = df.sort_values(by="Price", ascending=False)
 
-# === SORTING CONTROL ===
-sort_by = st.selectbox("Sort By", ["Flip Score (High to Low)", "Price (Low to High)", "Price (High to Low)"])
-if sort_by == "Flip Score (High to Low)":
-    df = df.sort_values(by="Flip Score", ascending=False)
-elif sort_by == "Price (Low to High)":
-    df = df.sort_values(by="Price", ascending=True)
-elif sort_by == "Price (High to Low)":
-    df = df.sort_values(by="Price", ascending=False)
+        st.markdown("""
+            <h3 style='text-align: center; color: #00ffaa;'>🔥 Best Flip Opportunities</h3>
+        """, unsafe_allow_html=True)
 
-# === BEST FLIP DEALS HEADLINE ===
-st.markdown("""
-    <h3 style='text-align: center; color: #00ffaa;'>🔥 Best Flip Opportunities</h3>
-""", unsafe_allow_html=True)
+        best_score = df["Flip Score"].max() if not df.empty else None
 
-# === DISPLAY CARDS ===
-best_score = df["Flip Score"].max() if not df.empty else None
-
-for _, row in df.iterrows():
-    type_icon = get_type_emoji(row['Card'])
-    tier_icon = get_icon(row['Flip Score'])
-    badge = "<span style='background:#ffd700;color:#000;padding:4px 8px;border-radius:6px;margin-left:10px;'>🏆 Best Flip</span>" if row["Flip Score"] == best_score and best_score is not None else ""
-    st.markdown(f"""
-        <div class="baseball-tab">
-            <img src="{row['Image']}" width="120" class="card-img">
-            <div class="card-info">
-                <h4>{type_icon} {row['Card']} {badge}</h4>
-                <p class="price">💰 ${row['Price']} &nbsp; | &nbsp; Avg: ${row['Avg Sold']}</p>
-                <p class="flip-score">Flip Score: {tier_icon} {row['Flip Score']}%</p>
-                <a href="{row['Link']}" class="view-btn" target="_blank">View on eBay</a>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+        for _, row in df.iterrows():
+            type_icon = get_type_emoji(row['Card'])
+            tier_icon = get_icon(row['Flip Score'])
+            badge = "<span style='background:#ffd700;color:#000;padding:4px 8px;border-radius:6px;margin-left:10px;'>🏆 Best Flip</span>" if row["Flip Score"] == best_score and best_score is not None else ""
+            st.markdown(f"""
+                <div class="baseball-tab">
+                    <img src="{row['Image']}" width="120" class="card-img">
+                    <div class="card-info">
+                        <h4>{type_icon} {row['Card']} {badge}</h4>
+                        <p class="price">💰 ${row['Price']} &nbsp; | &nbsp; Avg: ${row['Avg Sold']}</p>
+                        <p class="flip-score">Flip Score: {tier_icon} {row['Flip Score']}%</p>
+                        <a href="{row['Link']}" class="view-btn" target="_blank">View on eBay</a>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
