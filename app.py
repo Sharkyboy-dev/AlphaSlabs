@@ -3,7 +3,12 @@ import streamlit as st
 import pandas as pd
 import os
 
-st.set_page_config(page_title="AlphaSlabs", layout="wide")
+st.set_page_config(
+    page_title="AlphaSlabs",
+    layout="wide",
+    page_icon="📈",
+    initial_sidebar_state="collapsed"
+)
 
 # === MODERN STYLES ===
 st.markdown("""
@@ -12,6 +17,11 @@ st.markdown("""
         html, body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        }
+        .main-wrapper {
+            max-width: 1000px;
+            margin: auto;
+            padding: 2rem 1rem;
         }
         .navbar {
             display: flex;
@@ -40,11 +50,6 @@ st.markdown("""
         .logo-container h2 {
             color: #f0f0f0;
             font-weight: 500;
-        }
-        .main-wrapper {
-            max-width: 1000px;
-            margin: auto;
-            padding: 2rem 1rem;
         }
         .card-container {
             display: flex;
@@ -82,7 +87,6 @@ st.markdown("""
             font-weight: 500;
         }
         .view-btn {
-            background-color: #28a745;
             color: white;
             padding: 6px 14px;
             border: none;
@@ -93,9 +97,9 @@ st.markdown("""
             margin-top: 0.5rem;
         }
         .view-btn:hover {
-            background-color: #218838;
+            opacity: 0.9;
         }
-        .css-1aehpvj {  /* category tab font size */
+        .css-1aehpvj {
             font-size: 16px !important;
             font-weight: 500;
         }
@@ -124,6 +128,9 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# === MAIN WRAPPER START ===
+st.markdown("<div class='main-wrapper'>", unsafe_allow_html=True)
+
 # === LOGO + SLOGAN ===
 st.markdown("""
     <div class='logo-container'>
@@ -131,9 +138,6 @@ st.markdown("""
         <h2 style='color: white;'>Built for collectors. Powered by alpha.</h2>
     </div>
 """, unsafe_allow_html=True)
-
-# === MAIN WRAPPER START ===
-st.markdown("<div class='main-wrapper'>", unsafe_allow_html=True)
 
 # === CATEGORY TABS ===
 categories = [
