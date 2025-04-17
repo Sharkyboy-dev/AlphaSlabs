@@ -1,4 +1,4 @@
-# AlphaSlabs Flip Tracker - Polished UI + Layout Fixes
+# AlphaSlabs Streamlit - Final Centered Filter Fix
 import streamlit as st
 import pandas as pd
 import os
@@ -21,15 +21,20 @@ st.markdown("""
         .main-wrapper {
             max-width: 960px;
             margin: auto;
-            padding: 1rem;
+            padding: 2rem 1rem;
         }
         .filter-wrapper {
-            max-width: 700px;
-            margin: 2rem auto 1rem;
-            padding: 1.5rem 2rem;
-            background-color: #111;
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .filter-inner {
+            background: #111;
+            padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
         }
         .navbar {
             display: flex;
@@ -55,23 +60,14 @@ st.markdown("""
             text-align: center;
             margin: 2rem 0 1rem;
         }
-        .card-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
         .baseball-tab {
             display: flex;
             align-items: center;
             background-color: #14213d;
             padding: 1rem;
             border-radius: 14px;
+            margin-bottom: 1.5rem;
             box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-            transition: transform 0.2s ease, box-shadow 0.2s;
-        }
-        .baseball-tab:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
         .card-img {
             margin-right: 1rem;
@@ -105,17 +101,6 @@ st.markdown("""
             display: inline-block;
             margin-top: 0.5rem;
         }
-        input, select {
-            font-size: 16px;
-            padding: 0.5rem;
-            border-radius: 6px;
-            border: 1px solid #444;
-            width: 100%;
-        }
-        .css-1aehpvj {
-            font-size: 16px !important;
-            font-weight: 500;
-        }
         footer {
             text-align: center;
             color: #aaa;
@@ -129,13 +114,13 @@ st.markdown("""
 st.markdown("""
     <div class='navbar'>
         <a href='#'>Home</a>
-        <a href='#'>My Watchlist</a>
-        <a href='#'>Submit a Card</a>
+        <a href='#'>Watchlist</a>
+        <a href='#'>Submit</a>
         <a href='#'>Discord</a>
     </div>
 """, unsafe_allow_html=True)
 
-# === MAIN WRAPPER START ===
+# === WRAPPER START ===
 st.markdown("<div class='main-wrapper'>", unsafe_allow_html=True)
 
 # === LOGO + SLOGAN ===
@@ -155,56 +140,54 @@ categories = [
     ("UFC", "ufc_cards.csv"),
     ("Soccer", "soccer_cards.csv")
 ]
-
 selected = st.radio("Select a category:", [label for label, _ in categories], horizontal=True)
 selected_file = next((file for label, file in categories if label == selected), None)
 
 if selected_file:
-    data_path = os.path.join("data", selected_file)
-    if os.path.exists(data_path):
-        df = pd.read_csv(data_path)
+    path = os.path.join("data", selected_file)
+    if os.path.exists(path):
+        df = pd.read_csv(path)
 
-        # === FILTERS IN A CENTERED WRAPPER ===
-        st.markdown("<div class='filter-wrapper'>", unsafe_allow_html=True)
+        # === FILTER SECTION ===
+        st.markdown("<div class='filter-wrapper'><div class='filter-inner'>", unsafe_allow_html=True)
 
-        search_term = st.text_input(f"Search {selected}")
+        search_term = st.text_input("Search", "")
         if search_term:
             df = df[df["Card"].str.contains(search_term, case=False)]
 
-        price_range = st.slider(f"Price Range ({selected})", 0, 500, (10, 100))
+        price_range = st.slider("Price Range", 0, 500, (10, 100))
         df = df[(df["Price"] >= price_range[0]) & (df["Price"] <= price_range[1])]
 
-        min_score = st.slider(f"Flip Score Min ({selected})", 0, 100, 10)
+        score_min = st.slider("Flip Score Min", 0, 100, 10)
         df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Avg Sold"] * 100).round(1)
-        df = df[df["Flip Score"] >= min_score]
+        df = df[df["Flip Score"] >= score_min]
 
-        sort_option = st.selectbox("Sort By", ["Flip Score (High to Low)", "Flip Score (Low to High)"])
-        df = df.sort_values("Flip Score", ascending=(sort_option == "Flip Score (Low to High)"))
+        sort_by = st.selectbox("Sort By", ["Flip Score (High to Low)", "Flip Score (Low to High)"])
+        df = df.sort_values("Flip Score", ascending=(sort_by == "Flip Score (Low to High)"))
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div></div>", unsafe_allow_html=True)
 
         # === DISPLAY CARDS ===
-        st.markdown("<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Best Flip Opportunities</h4>", unsafe_allow_html=True)
-        with st.container():
-            for _, row in df.iterrows():
-                link_label = "View on Mercari" if "mercari.com" in row["Link"] else "View on eBay"
-                link_color = "#ff6f61" if "mercari.com" in row["Link"] else "#1e88e5"
+        st.markdown("<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Flip Opportunities</h4>", unsafe_allow_html=True)
+        for _, row in df.iterrows():
+            btn_label = "View on Mercari" if "mercari.com" in row["Link"] else "View on eBay"
+            btn_color = "#ff6f61" if "mercari.com" in row["Link"] else "#1e88e5"
 
-                st.markdown(f"""
-                    <div class='baseball-tab'>
-                        <img class='card-img' src='{row["Image"]}'>
-                        <div class='card-info'>
-                            <h4>{row["Card"]}</h4>
-                            <div class='price'>💰 ${row["Price"]} | Avg: ${row["Avg Sold"]}</div>
-                            <div class='flip-score'>🔥 Flip Score: {row["Flip Score"]}%</div>
-                            <a href='{row["Link"]}' class='view-btn' style='background-color:{link_color};' target='_blank'>{link_label}</a>
-                        </div>
+            st.markdown(f"""
+                <div class='baseball-tab'>
+                    <img class='card-img' src='{row["Image"]}'>
+                    <div class='card-info'>
+                        <h4>{row["Card"]}</h4>
+                        <div class='price'>💰 ${row["Price"]} | Avg: ${row["Avg Sold"]}</div>
+                        <div class='flip-score'>Score: {row["Flip Score"]}%</div>
+                        <a href='{row["Link"]}' class='view-btn' style='background-color:{btn_color};' target='_blank'>{btn_label}</a>
                     </div>
-                """, unsafe_allow_html=True)
+                </div>
+            """, unsafe_allow_html=True)
     else:
-        st.error(f"data/{selected_file} not found. Please upload it to /data.")
+        st.warning(f"File not found: {selected_file}")
 
-# === MAIN WRAPPER END ===
+# === WRAPPER END ===
 st.markdown("</div>", unsafe_allow_html=True)
 
 # === FOOTER ===
