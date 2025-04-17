@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Dynamic Flip Score Logic + AutoTag
+# AlphaSlabs Streamlit MVP with Dynamic Flip Score Logic + AutoTag + Best Deals Tab
 import streamlit as st
 import pandas as pd
 import os
@@ -162,6 +162,11 @@ def get_type_emoji(name):
 
 # === FILTERED DATAFRAME ===
 df = data[(data["Price"] >= min_price) & (data["Price"] <= max_price) & (data["Flip Score"] >= flip_score_min)]
+
+# === BEST FLIP DEALS HEADLINE ===
+st.markdown("""
+    <h3 style='text-align: center; color: #00ffaa;'>🔥 Best Flip Opportunities</h3>
+""", unsafe_allow_html=True)
 
 # === DISPLAY CARDS ===
 for _, row in df.iterrows():
