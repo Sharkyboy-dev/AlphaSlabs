@@ -45,12 +45,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ✅ LOGO CENTERED (WORKS IN CLOUD)
+# === CENTERED LOGO (hosted image link only) ===
+logo_url = "https://raw.githubusercontent.com/Sharkyboy-dev/AlphaSlabs/main/images/logo.png"  # ✅ Make sure this URL works in GitHub!
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("images/logo.png", width=200)
+    st.image(logo_url, width=200)
 
-# ✅ SLOGAN
+# === SLOGAN ===
 st.markdown(
     "<h2 style='text-align:center; color:white;'>Built for collectors. Powered by alpha.</h2>",
     unsafe_allow_html=True
