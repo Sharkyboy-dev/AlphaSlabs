@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Full Layout Polishing + Centered Filter Layout
+# AlphaSlabs Flip Tracker - Polished UI + Layout Fixes
 import streamlit as st
 import pandas as pd
 import os
@@ -21,20 +21,15 @@ st.markdown("""
         .main-wrapper {
             max-width: 960px;
             margin: auto;
-            padding: 2rem 1rem;
+            padding: 1rem;
         }
         .filter-wrapper {
             max-width: 700px;
-            margin: 2rem auto 0;
-            padding: 1rem 2rem;
+            margin: 2rem auto 1rem;
+            padding: 1.5rem 2rem;
             background-color: #111;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        .input-group label {
-            color: #f0f0f0;
-            font-weight: 500;
-            margin-bottom: 0.3rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
         }
         .navbar {
             display: flex;
@@ -110,15 +105,16 @@ st.markdown("""
             display: inline-block;
             margin-top: 0.5rem;
         }
-        .css-1aehpvj {
-            font-size: 16px !important;
-            font-weight: 500;
-        }
         input, select {
             font-size: 16px;
             padding: 0.5rem;
             border-radius: 6px;
             border: 1px solid #444;
+            width: 100%;
+        }
+        .css-1aehpvj {
+            font-size: 16px !important;
+            font-weight: 500;
         }
         footer {
             text-align: center;
@@ -168,17 +164,17 @@ if selected_file:
     if os.path.exists(data_path):
         df = pd.read_csv(data_path)
 
-        # === FILTERS IN CENTERED CONTAINER ===
+        # === FILTERS IN A CENTERED WRAPPER ===
         st.markdown("<div class='filter-wrapper'>", unsafe_allow_html=True)
 
-        search_term = st.text_input("Search " + selected, label_visibility="visible")
+        search_term = st.text_input(f"Search {selected}")
         if search_term:
             df = df[df["Card"].str.contains(search_term, case=False)]
 
-        price_range = st.slider("Price Range (" + selected + ")", 0, 500, (10, 100))
+        price_range = st.slider(f"Price Range ({selected})", 0, 500, (10, 100))
         df = df[(df["Price"] >= price_range[0]) & (df["Price"] <= price_range[1])]
 
-        min_score = st.slider("Flip Score Min (" + selected + ")", 0, 100, 10)
+        min_score = st.slider(f"Flip Score Min ({selected})", 0, 100, 10)
         df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Avg Sold"] * 100).round(1)
         df = df[df["Flip Score"] >= min_score]
 
@@ -188,7 +184,7 @@ if selected_file:
         st.markdown("</div>", unsafe_allow_html=True)
 
         # === DISPLAY CARDS ===
-        st.markdown(f"""<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Best Flip Opportunities</h4>""", unsafe_allow_html=True)
+        st.markdown("<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Best Flip Opportunities</h4>", unsafe_allow_html=True)
         with st.container():
             for _, row in df.iterrows():
                 link_label = "View on Mercari" if "mercari.com" in row["Link"] else "View on eBay"
