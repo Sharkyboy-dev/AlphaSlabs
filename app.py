@@ -123,6 +123,30 @@ data = [
         "Link": "https://www.ebay.com/itm/2222222222",
         "Image": "https://i.imgur.com/UhVb5zk.png",
         "Category": "UFC"
+    },
+    {
+        "Card": "2017 Panini Select Patrick Mahomes RC",
+        "Price": 80.00,
+        "Avg Sold": 190.00,
+        "Link": "https://www.ebay.com/itm/3333333333",
+        "Image": "https://i.imgur.com/UhVb5zk.png",
+        "Category": "Football"
+    },
+    {
+        "Card": "2022 Donruss Mac Jones Downtown",
+        "Price": 160.00,
+        "Avg Sold": 170.00,
+        "Link": "https://www.ebay.com/itm/4444444444",
+        "Image": "https://i.imgur.com/UhVb5zk.png",
+        "Category": "Football"
+    },
+    {
+        "Card": "2023 Topps Now Shohei Ohtani MVP",
+        "Price": 20.00,
+        "Avg Sold": 22.00,
+        "Link": "https://www.ebay.com/itm/5555555555",
+        "Image": "https://i.imgur.com/UhVb5zk.png",
+        "Category": "Baseball"
     }
 ]
 
