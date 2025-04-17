@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Flip Score Sorting, Search, Dynamic Logic + AutoTag + Best Deals Tab + Best Flip Badge + Category Tabs
+# AlphaSlabs Streamlit MVP with Full Layout Polishing
 import streamlit as st
 import pandas as pd
 import os
@@ -11,6 +11,23 @@ st.markdown("""
         body {
             background: url('https://i.imgur.com/FkJEmZB.jpg') no-repeat center center fixed;
             background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 10px 0;
+            background-color: #001d3d;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .logo-container {
+            text-align: center;
+            margin: 1rem 0 0.5rem;
         }
         .baseball-tab {
             display: flex;
@@ -27,7 +44,6 @@ st.markdown("""
         }
         .card-info {
             color: white;
-            font-family: sans-serif;
         }
         .price {
             color: #ffd700;
@@ -44,12 +60,28 @@ st.markdown("""
             border-radius: 6px;
             text-decoration: none;
         }
+        footer {
+            text-align: center;
+            color: #ccc;
+            padding: 1rem 0 2rem;
+            font-size: 0.85rem;
+        }
     </style>
+""", unsafe_allow_html=True)
+
+# === NAVBAR ===
+st.markdown("""
+    <div class='navbar'>
+        <a href='#'>Home</a>
+        <a href='#'>My Watchlist</a>
+        <a href='#'>Submit a Card</a>
+        <a href='#'>Discord</a>
+    </div>
 """, unsafe_allow_html=True)
 
 # === LOGO + SLOGAN ===
 st.markdown("""
-    <div style='text-align: center;'>
+    <div class='logo-container'>
         <img src='https://raw.githubusercontent.com/Sharkyboy-dev/AlphaSlabs/main/images/logo.png' width='220'>
         <h2 style='color: white;'>Built for collectors. Powered by alpha.</h2>
     </div>
@@ -163,3 +195,10 @@ for i, tab in enumerate(tab_objects):
                     </div>
                 </div>
             """, unsafe_allow_html=True)
+
+# === FOOTER ===
+st.markdown("""
+    <footer>
+        © 2025 AlphaSlabs · All rights reserved · Built by Sharkyboy-dev
+    </footer>
+""", unsafe_allow_html=True)
