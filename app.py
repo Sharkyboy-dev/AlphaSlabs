@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Dynamic Flip Score Logic + AutoTag + Best Deals Tab
+# AlphaSlabs Streamlit MVP with Flip Score Sorting, Dynamic Logic + AutoTag + Best Deals Tab
 import streamlit as st
 import pandas as pd
 import os
@@ -162,6 +162,15 @@ def get_type_emoji(name):
 
 # === FILTERED DATAFRAME ===
 df = data[(data["Price"] >= min_price) & (data["Price"] <= max_price) & (data["Flip Score"] >= flip_score_min)]
+
+# === SORTING CONTROL ===
+sort_by = st.selectbox("Sort By", ["Flip Score (High to Low)", "Price (Low to High)", "Price (High to Low)"])
+if sort_by == "Flip Score (High to Low)":
+    df = df.sort_values(by="Flip Score", ascending=False)
+elif sort_by == "Price (Low to High)":
+    df = df.sort_values(by="Price", ascending=True)
+elif sort_by == "Price (High to Low)":
+    df = df.sort_values(by="Price", ascending=False)
 
 # === BEST FLIP DEALS HEADLINE ===
 st.markdown("""
