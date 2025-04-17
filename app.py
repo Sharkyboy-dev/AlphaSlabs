@@ -110,57 +110,7 @@ with col_slider2:
     flip_score_min = st.slider("Flip Score Min", 0, 100, 10, key="score_slider")
 
 # === SAMPLE CARD DATA ===
-data = [
-    {
-        "Card": "2020 Topps Chrome Luis Robert PSA 10",
-        "Price": 42.50,
-        "Avg Sold": 60.00,
-        "Link": "https://www.ebay.com/itm/1234567890",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
-    },
-    {
-        "Card": "2019 Prizm Ja Morant Rookie PSA 10",
-        "Price": 72.00,
-        "Avg Sold": 88.00,
-        "Link": "https://www.ebay.com/itm/2345678901",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
-    },
-    {
-        "Card": "2000 Pokémon Charizard Holo Base Set",
-        "Price": 120.00,
-        "Avg Sold": 200.00,
-        "Link": "https://www.ebay.com/itm/1111111111",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
-    },
-    {
-        "Card": "2023 UFC Chrome Paddy Pimblett Rookie",
-        "Price": 35.00,
-        "Avg Sold": 50.00,
-        "Link": "https://www.ebay.com/itm/2222222222",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
-    },
-    {
-        "Card": "2017 Panini Select Patrick Mahomes RC",
-        "Price": 80.00,
-        "Avg Sold": 190.00,
-        "Link": "https://www.ebay.com/itm/3333333333",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
-    },
-    {
-        "Card": "2022 Donruss Mac Jones Downtown",
-        "Price": 160.00,
-        "Avg Sold": 170.00,
-        "Link": "https://www.ebay.com/itm/4444444444",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
-    },
-    {
-        "Card": "2023 Topps Now Shohei Ohtani MVP",
-        "Price": 20.00,
-        "Avg Sold": 22.00,
-        "Link": "https://www.ebay.com/itm/5555555555",
-        "Image": "https://i.imgur.com/UhVb5zk.png"
-    }
-]
+data = pd.read_csv("baseball_cards.csv")
 
 # === AUTOTAG BY KEYWORD ===
 def auto_tag(card_name):
@@ -180,13 +130,8 @@ def auto_tag(card_name):
     else:
         return "Other"
 
-for d in data:
-    d["Category"] = auto_tag(d["Card"])
-
-# === DATAFRAME ===
-df = pd.DataFrame(data)
-df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Price"] * 100).round(1)
-df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
+data["Category"] = data["Card"].apply(auto_tag)
+data["Flip Score"] = ((data["Avg Sold"] - data["Price"]) / data["Price"] * 100).round(1)
 
 # === EMOJI SCORING TIERS ===
 def get_icon(score):
@@ -215,6 +160,9 @@ def get_type_emoji(name):
         return "🥊"
     else:
         return "🎴"
+
+# === FILTERED DATAFRAME ===
+df = data[(data["Price"] >= min_price) & (data["Price"] <= max_price) & (data["Flip Score"] >= flip_score_min)]
 
 # === DISPLAY CARDS ===
 for _, row in df.iterrows():
