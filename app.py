@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="AlphaSlabs", layout="wide")
 
-# === STYLES ===
+# === GLOBAL STYLES ===
 st.markdown("""
     <style>
         body {
@@ -45,68 +45,18 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ✅ Centered logo (Streamlit columns, not HTML)
+# ✅ LOGO CENTERED (WORKS IN CLOUD)
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.image("images/logo.png", width=200)
 
-# ✅ Single clean slogan
+# ✅ SLOGAN
 st.markdown(
     "<h2 style='text-align:center; color:white;'>Built for collectors. Powered by alpha.</h2>",
     unsafe_allow_html=True
 )
 
-
-# Custom background
-st.markdown("""
-    <style>
-        body {
-            background: url('https://i.imgur.com/FkJEmZB.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-        .baseball-tab {
-            display: flex;
-            align-items: center;
-            background-color: #00264d;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 0 10px #000;
-        }
-        .card-img {
-            margin-right: 1rem;
-            border-radius: 8px;
-        }
-        .card-info {
-            color: white;
-            font-family: sans-serif;
-        }
-        .price {
-            color: #ffd700;
-            font-size: 1rem;
-        }
-        .flip-score {
-            font-weight: bold;
-        }
-        .view-btn {
-            background-color: #1e88e5;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            text-decoration: none;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# ✅ Centered logo + tagline
-st.markdown(
-    "<div style='text-align: center;'><img src='images/logo.png' width='200'></div>",
-    unsafe_allow_html=True
-)
-st.markdown("<h2 style='text-align:center; color:white;'>Built for collectors. Powered by alpha.</h2>", unsafe_allow_html=True)
-
-# Filters
+# === FILTERS ===
 col1, col2, col3 = st.columns(3)
 with col1:
     search_query = st.text_input("Search", "")
@@ -115,7 +65,7 @@ with col2:
 with col3:
     flip_score_min = st.slider("Flip Score Min", 0, 50, 10)
 
-# Sample card data
+# === SAMPLE CARD DATA ===
 data = [
     {
         "Card": "2020 Topps Chrome Luis Robert PSA 10",
@@ -152,13 +102,11 @@ data = [
 ]
 
 df = pd.DataFrame(data)
-
-# Apply filters
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
 if search_query:
     df = df[df["Card"].str.contains(search_query, case=False)]
 
-# 🧠 Auto-icon by keyword
+# === ICON LOGIC ===
 def get_card_icon(name):
     name = name.lower()
     if any(word in name for word in ["pokemon", "charizard", "wotc"]):
@@ -174,7 +122,7 @@ def get_card_icon(name):
     else:
         return "🎴"
 
-# Display cards in styled tabs
+# === DISPLAY CARDS ===
 for _, row in df.iterrows():
     icon = get_card_icon(row['Card'])
     st.markdown(f"""
