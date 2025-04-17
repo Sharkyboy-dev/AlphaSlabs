@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Flip Score Sorting, Dynamic Logic + AutoTag + Best Deals Tab
+# AlphaSlabs Streamlit MVP with Flip Score Sorting, Search, Dynamic Logic + AutoTag + Best Deals Tab
 import streamlit as st
 import pandas as pd
 import os
@@ -95,6 +95,9 @@ available_csvs = {
 selected_category = st.selectbox("Choose Card Category", list(available_csvs.keys()))
 data_file = os.path.join("data", available_csvs[selected_category])
 
+# === SEARCH FIELD ===
+search_term = st.text_input("Search by keyword (card, player, team, brand)", "")
+
 # === CENTERED SLIDERS ===
 center1, col_slider1, center2 = st.columns([1, 2, 1])
 with col_slider1:
@@ -162,6 +165,9 @@ def get_type_emoji(name):
 
 # === FILTERED DATAFRAME ===
 df = data[(data["Price"] >= min_price) & (data["Price"] <= max_price) & (data["Flip Score"] >= flip_score_min)]
+
+if search_term:
+    df = df[df["Card"].str.contains(search_term, case=False)]
 
 # === SORTING CONTROL ===
 sort_by = st.selectbox("Sort By", ["Flip Score (High to Low)", "Price (Low to High)", "Price (High to Low)"])
