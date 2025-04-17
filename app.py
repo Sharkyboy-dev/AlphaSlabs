@@ -1,4 +1,4 @@
-# AlphaSlabs Streamlit MVP with Dynamic Flip Score Logic
+# AlphaSlabs Streamlit MVP with Dynamic Flip Score Logic + AutoTag
 import streamlit as st
 import pandas as pd
 
@@ -97,64 +97,76 @@ data = [
         "Price": 42.50,
         "Avg Sold": 60.00,
         "Link": "https://www.ebay.com/itm/1234567890",
-        "Image": "https://i.imgur.com/UhVb5zk.png",
-        "Category": "Baseball"
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     },
     {
         "Card": "2019 Prizm Ja Morant Rookie PSA 10",
         "Price": 72.00,
         "Avg Sold": 88.00,
         "Link": "https://www.ebay.com/itm/2345678901",
-        "Image": "https://i.imgur.com/UhVb5zk.png",
-        "Category": "Basketball"
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     },
     {
         "Card": "2000 Pokémon Charizard Holo Base Set",
         "Price": 120.00,
         "Avg Sold": 200.00,
         "Link": "https://www.ebay.com/itm/1111111111",
-        "Image": "https://i.imgur.com/UhVb5zk.png",
-        "Category": "Pokémon"
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     },
     {
         "Card": "2023 UFC Chrome Paddy Pimblett Rookie",
         "Price": 35.00,
         "Avg Sold": 50.00,
         "Link": "https://www.ebay.com/itm/2222222222",
-        "Image": "https://i.imgur.com/UhVb5zk.png",
-        "Category": "UFC"
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     },
     {
         "Card": "2017 Panini Select Patrick Mahomes RC",
         "Price": 80.00,
         "Avg Sold": 190.00,
         "Link": "https://www.ebay.com/itm/3333333333",
-        "Image": "https://i.imgur.com/UhVb5zk.png",
-        "Category": "Football"
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     },
     {
         "Card": "2022 Donruss Mac Jones Downtown",
         "Price": 160.00,
         "Avg Sold": 170.00,
         "Link": "https://www.ebay.com/itm/4444444444",
-        "Image": "https://i.imgur.com/UhVb5zk.png",
-        "Category": "Football"
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     },
     {
         "Card": "2023 Topps Now Shohei Ohtani MVP",
         "Price": 20.00,
         "Avg Sold": 22.00,
         "Link": "https://www.ebay.com/itm/5555555555",
-        "Image": "https://i.imgur.com/UhVb5zk.png",
-        "Category": "Baseball"
+        "Image": "https://i.imgur.com/UhVb5zk.png"
     }
 ]
 
-# Calculate Flip Score (% Upside)
+# === AUTOTAG BY KEYWORD ===
+def auto_tag(card_name):
+    name = card_name.lower()
+    if "pokemon" in name or "charizard" in name:
+        return "Pokémon"
+    elif "ufc" in name or "pimblett" in name:
+        return "UFC"
+    elif "mlb" in name or "topps" in name or "ohtani" in name:
+        return "Baseball"
+    elif "mahomes" in name or "panini" in name or "nfl" in name or "mac jones" in name:
+        return "Football"
+    elif "ja morant" in name or "prizm" in name:
+        return "Basketball"
+    elif "soccer" in name or "futbol" in name:
+        return "Soccer"
+    else:
+        return "Other"
+
+for d in data:
+    d["Category"] = auto_tag(d["Card"])
+
+# === DATAFRAME ===
 df = pd.DataFrame(data)
 df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Price"] * 100).round(1)
-
-# Filter
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
 
 # === EMOJI SCORING TIERS ===
