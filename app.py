@@ -1,6 +1,7 @@
 # AlphaSlabs Streamlit MVP with Dynamic Flip Score Logic + AutoTag
 import streamlit as st
 import pandas as pd
+import os
 
 st.set_page_config(page_title="AlphaSlabs", layout="wide")
 
@@ -109,8 +110,13 @@ center3, col_slider2, center4 = st.columns([1, 2, 1])
 with col_slider2:
     flip_score_min = st.slider("Flip Score Min", 0, 100, 10, key="score_slider")
 
-# === SAMPLE CARD DATA ===
-data = pd.read_csv("data/baseball_cards.csv")
+# === SAFE FILE LOAD ===
+data_path = os.path.join("data", "baseball_cards.csv")
+if not os.path.exists(data_path):
+    st.error("❌ baseball_cards.csv not found in /data folder. Please upload it.")
+    st.stop()
+
+data = pd.read_csv(data_path)
 
 # === AUTOTAG BY KEYWORD ===
 def auto_tag(card_name):
