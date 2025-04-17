@@ -23,6 +23,12 @@ st.markdown("""
             margin: auto;
             padding: 2rem 1rem;
         }
+        .filter-section {
+            max-width: 800px;
+            margin: auto;
+            padding-top: 1rem;
+            padding-bottom: 2rem;
+        }
         .navbar {
             display: flex;
             justify-content: center;
@@ -150,7 +156,6 @@ categories = [
 ]
 
 selected = st.radio("Select a category:", [label for label, _ in categories], horizontal=True)
-
 selected_file = next((file for label, file in categories if label == selected), None)
 
 if selected_file:
@@ -158,7 +163,9 @@ if selected_file:
     if os.path.exists(data_path):
         df = pd.read_csv(data_path)
 
-        # Filters
+        # === FILTER SECTION WRAPPER START ===
+        st.markdown("<div class='filter-section'>", unsafe_allow_html=True)
+
         search_term = st.text_input(f"Search {selected}")
         df = df[df["Card"].str.contains(search_term, case=False)] if search_term else df
 
@@ -171,6 +178,9 @@ if selected_file:
 
         sort_option = st.selectbox("Sort By", ["Flip Score (High to Low)", "Flip Score (Low to High)"])
         df = df.sort_values("Flip Score", ascending=(sort_option == "Flip Score (Low to High)"))
+
+        # === FILTER SECTION WRAPPER END ===
+        st.markdown("</div>", unsafe_allow_html=True)
 
         # Display
         st.markdown(f"""<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Best Flip Opportunities</h4>""", unsafe_allow_html=True)
