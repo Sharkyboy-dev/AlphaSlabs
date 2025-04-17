@@ -4,6 +4,7 @@ import pandas as pd
 
 st.set_page_config(page_title="AlphaSlabs", layout="wide")
 
+# Custom background style
 st.markdown(
     '''
     <style>
@@ -16,40 +17,26 @@ st.markdown(
             padding: 2rem 2rem 2rem 2rem;
             border-radius: 10px;
         }
-        .centered-logo {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        .badge-strip {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-        }
-        .badge-strip img {
-            height: 50px;
-        }
     </style>
     ''',
     unsafe_allow_html=True
 )
 
-st.markdown('<div class="centered-logo"><img src="images/logo.png" width="200"></div>', unsafe_allow_html=True)
+# ✅ Centered logo
+st.image("images/logo.png", width=200)
 st.markdown("<h2 style='text-align:center; color:white;'>Built for collectors. Powered by alpha.</h2>", unsafe_allow_html=True)
 
-st.markdown('''
-<div class="badge-strip">
-    <img src="images/pokeball.png">
-    <img src="images/football.png">
-    <img src="images/baseball_tags.png">
-    <img src="images/glove.png">
-    <img src="images/field.png">
-</div>
-''', unsafe_allow_html=True)
+# ✅ Themed PNG strip using st.image
+row = st.columns(5)
+row[0].image("images/pokeball.png", width=50)
+row[1].image("images/football.png", width=50)
+row[2].image("images/baseball_tags.png", width=50)
+row[3].image("images/glove.png", width=50)
+row[4].image("images/field.png", width=50)
 
 st.markdown("---")
 
+# Filters
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     search_query = st.text_input("Search Keyword", "")
@@ -60,6 +47,7 @@ with col3:
 with col4:
     flip_score = st.slider("Min Flip Score", 0, 50, 10)
 
+# Card data
 data = [
     {
         "Card": "2020 Topps Chrome Luis Robert PSA 10",
@@ -97,6 +85,7 @@ filtered_df = df[
 if search_query:
     filtered_df = filtered_df[filtered_df["Card"].str.contains(search_query, case=False)]
 
+# Display listings
 for _, row in filtered_df.iterrows():
     st.markdown("---")
     cols = st.columns([1, 2])
@@ -106,4 +95,4 @@ for _, row in filtered_df.iterrows():
         st.markdown(f"<h4 style='color:white'>{row['Card']}</h4>", unsafe_allow_html=True)
         st.markdown(f"<span style='color:#ccc;'>💰 <strong>${row['Price']}</strong> | Avg: ${row['Avg Sold']}</span>", unsafe_allow_html=True)
         st.markdown(f"<span style='color:#ccc;'>Flip Score: {'🔥' if row['Flip Score'] > 15 else '⚠️'} {row['Flip Score']}</span>", unsafe_allow_html=True)
-        st.markdown(f"<a href='{row['Link']}' target='_blank'><button style='background-color:#1e88e5;color:white;padding:6px 16px;border:none;border-radius:4px;'>View on eBay</button></a>", unsafe_allow_html=True)
+        st.markdown(f"[👉 View on eBay]({row['Link']})", unsafe_allow_html=True)
