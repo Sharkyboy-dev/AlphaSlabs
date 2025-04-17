@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="AlphaSlabs", layout="wide")
 
-# === GLOBAL STYLES ===
+# === STYLES ===
 st.markdown("""
     <style>
         body {
@@ -48,7 +48,7 @@ st.markdown("""
             align-items: center;
             gap: 10px;
             margin-top: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         .search-select, .search-box {
             padding: 10px;
@@ -81,7 +81,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# === CUSTOM SEARCH UI ===
+# === SEARCH BAR UI ===
 st.markdown("""
     <div class="search-row">
         <form action="" method="get">
@@ -100,11 +100,14 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# === STREAMLIT FILTERS (visible only to backend, not UI) ===
-category = "All"  # default value
-search_query = ""  # placeholder
-min_price, max_price = st.slider("Price Range", 0, 500, (10, 100))
-flip_score_min = st.slider("Flip Score Min", 0, 50, 10)
+# === CENTERED SLIDERS ===
+center1, col_slider1, center2 = st.columns([1, 2, 1])
+with col_slider1:
+    min_price, max_price = st.slider("Price Range", 0, 500, (10, 100))
+
+center3, col_slider2, center4 = st.columns([1, 2, 1])
+with col_slider2:
+    flip_score_min = st.slider("Flip Score Min", 0, 50, 5)
 
 # === SAMPLE CARD DATA ===
 data = [
@@ -148,15 +151,16 @@ data = [
 
 df = pd.DataFrame(data)
 
-# === APPLY FILTERS ===
+# === FILTERS (static for now) ===
+search_query = ""
+category = "All"
+
 if category != "All":
     df = df[df["Category"] == category]
 
 df = df[(df["Price"] >= min_price) & (df["Price"] <= max_price) & (df["Flip Score"] >= flip_score_min)]
-if search_query:
-    df = df[df["Card"].str.contains(search_query, case=False)]
 
-# === ICON LOGIC ===
+# === ICONS BY CARD TYPE ===
 def get_card_icon(name):
     name = name.lower()
     if any(word in name for word in ["pokemon", "charizard", "wotc"]):
@@ -172,7 +176,7 @@ def get_card_icon(name):
     else:
         return "🎴"
 
-# === DISPLAY CARDS ===
+# === DISPLAY CARD LISTINGS ===
 for _, row in df.iterrows():
     icon = get_card_icon(row['Card'])
     st.markdown(f"""
