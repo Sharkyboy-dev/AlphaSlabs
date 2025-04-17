@@ -8,93 +8,95 @@ st.set_page_config(page_title="AlphaSlabs", layout="wide")
 # === MODERN STYLES ===
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         html, body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            background: linear-gradient(to right, #141e30, #243b55);
         }
         .navbar {
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 1.8rem;
             padding: 1rem;
             background-color: #101820;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #444;
         }
         .navbar a {
-            color: #f2f2f2;
+            color: #eee;
             text-decoration: none;
             font-weight: 600;
-            padding: 8px 14px;
-            border-radius: 20px;
-            transition: all 0.2s ease;
+            padding: 6px 14px;
+            border-radius: 16px;
+            transition: 0.2s ease-in-out;
         }
         .navbar a:hover {
-            background: #00ffaa30;
+            background: #00ffaa20;
             color: #00ffaa;
         }
         .logo-container {
             text-align: center;
-            margin: 1.5rem 0 0.5rem;
+            margin-top: 1.5rem;
         }
         .logo-container h2 {
-            color: #f0f0f0;
-            font-weight: 500;
+            color: white;
+            font-weight: 600;
         }
         .card-container {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
-        .baseball-tab {
+        .flip-card {
             display: flex;
             align-items: center;
-            background-color: #14213d;
+            background-color: #1a1a2e;
+            border-radius: 16px;
             padding: 1rem;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
         }
         .card-img {
-            margin-right: 1rem;
-            border-radius: 10px;
-            border: 1px solid #444;
             width: 100px;
             height: auto;
+            margin-right: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #444;
         }
         .card-info {
-            color: #ffffff;
+            color: #f0f0f0;
         }
         .card-info h4 {
+            margin: 0 0 0.4rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 0.4rem;
         }
         .price {
-            color: #ffc107;
+            color: #ffd166;
             font-size: 1rem;
             margin-bottom: 0.2rem;
         }
         .flip-score {
-            font-weight: 500;
+            font-weight: 600;
+            color: #06d6a0;
         }
         .view-btn {
-            background-color: #1e88e5;
+            display: inline-block;
+            margin-top: 0.6rem;
+            background: #118ab2;
             color: white;
-            padding: 6px 14px;
-            border: none;
+            padding: 6px 12px;
             border-radius: 6px;
             text-decoration: none;
             font-weight: 500;
-            display: inline-block;
-            margin-top: 0.5rem;
         }
         .view-btn:hover {
-            background-color: #1565c0;
+            background: #0b708f;
         }
         footer {
             text-align: center;
-            color: #aaa;
-            padding: 2rem 0 1rem;
+            margin-top: 2rem;
+            color: #999;
             font-size: 0.8rem;
+            padding-bottom: 1rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -103,17 +105,17 @@ st.markdown("""
 st.markdown("""
     <div class='navbar'>
         <a href='#'>Home</a>
-        <a href='#'>My Watchlist</a>
-        <a href='#'>Submit a Card</a>
+        <a href='#'>Watchlist</a>
         <a href='#'>Discord</a>
+        <a href='#'>Submit</a>
     </div>
 """, unsafe_allow_html=True)
 
-# === LOGO + SLOGAN ===
+# === HEADER ===
 st.markdown("""
     <div class='logo-container'>
         <img src='https://raw.githubusercontent.com/Sharkyboy-dev/AlphaSlabs/main/images/logo.png' width='220'>
-        <h2 style='color: white;'>Built for collectors. Powered by alpha.</h2>
+        <h2>Built for collectors. Powered by alpha.</h2>
     </div>
 """, unsafe_allow_html=True)
 
@@ -127,10 +129,10 @@ categories = [
     ("Soccer", "soccer_cards.csv")
 ]
 
-selected = st.radio("Select a category:", [label for label, _ in categories], horizontal=True)
-
+selected = st.radio("Choose Card Category", [label for label, _ in categories], horizontal=True)
 selected_file = next((file for label, file in categories if label == selected), None)
 
+# === MAIN DISPLAY ===
 if selected_file:
     data_path = os.path.join("data", selected_file)
     if os.path.exists(data_path):
@@ -138,7 +140,8 @@ if selected_file:
 
         # Filters
         search_term = st.text_input(f"Search {selected}")
-        df = df[df["Card"].str.contains(search_term, case=False)] if search_term else df
+        if search_term:
+            df = df[df["Card"].str.contains(search_term, case=False)]
 
         price_range = st.slider(f"Price Range ({selected})", 0, 500, (10, 100))
         df = df[(df["Price"] >= price_range[0]) & (df["Price"] <= price_range[1])]
@@ -150,21 +153,20 @@ if selected_file:
         sort_option = st.selectbox("Sort By", ["Flip Score (High to Low)", "Flip Score (Low to High)"])
         df = df.sort_values("Flip Score", ascending=(sort_option == "Flip Score (Low to High)"))
 
-        # Display
-        st.markdown(f"""<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Best Flip Opportunities</h4>""", unsafe_allow_html=True)
-        with st.container():
-            for _, row in df.iterrows():
-                st.markdown("""
-                    <div class='baseball-tab'>
-                        <img class='card-img' src='""" + row["Image"] + """'>
-                        <div class='card-info'>
-                            <h4>""" + row["Card"] + """</h4>
-                            <div class='price'>💰 $""" + str(row["Price"]) + " | Avg: $" + str(row["Avg Sold"]) + "</div>
-                            <div class='flip-score'>🔥 Flip Score: """ + str(row["Flip Score"]) + "%</div>
-                            <a href='""" + row["Link"] + "' class='view-btn' target='_blank'>View on eBay</a>
-                        </div>
+        st.markdown("<h4 style='color:#06d6a0;'>🔥 Best Flip Opportunities</h4>", unsafe_allow_html=True)
+
+        for _, row in df.iterrows():
+            st.markdown(f"""
+                <div class='flip-card'>
+                    <img class='card-img' src='{row["Image"]}'>
+                    <div class='card-info'>
+                        <h4>{row["Card"]}</h4>
+                        <div class='price'>💰 ${row["Price"]} | Avg: ${row["Avg Sold"]}</div>
+                        <div class='flip-score'>🔥 Flip Score: {row["Flip Score"]}%</div>
+                        <a href='{row["Link"]}' class='view-btn' target='_blank'>View on eBay</a>
                     </div>
-                """, unsafe_allow_html=True)
+                </div>
+            """, unsafe_allow_html=True)
     else:
         st.error(f"data/{selected_file} not found. Please upload it to /data.")
 
