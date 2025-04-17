@@ -51,6 +51,25 @@ st.markdown("""
             margin-top: 1.5rem;
             margin-bottom: 1.5rem;
         }
+        .search-box, .search-select {
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+        }
+        .search-box {
+            width: 300px;
+        }
+        .search-btn {
+            background-color: #1e88e5;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -84,11 +103,11 @@ st.markdown("""
 # === CENTERED SLIDERS ===
 center1, col_slider1, center2 = st.columns([1, 2, 1])
 with col_slider1:
-    min_price, max_price = st.slider("Price Range", 0, 500, (10, 100))
+    min_price, max_price = st.slider("Price Range", 0, 500, (10, 100), key="price_slider")
 
 center3, col_slider2, center4 = st.columns([1, 2, 1])
 with col_slider2:
-    flip_score_min = st.slider("Flip Score Min", 0, 100, 10)
+    flip_score_min = st.slider("Flip Score Min", 0, 100, 10, key="score_slider")
 
 # === SAMPLE CARD DATA ===
 data = [
