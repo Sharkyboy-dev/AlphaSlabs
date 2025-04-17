@@ -41,12 +41,16 @@ st.markdown("""
             color: #f0f0f0;
             font-weight: 500;
         }
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
         .baseball-tab {
             display: flex;
             align-items: center;
             background-color: #14213d;
             padding: 1rem;
-            margin-bottom: 1.5rem;
             border-radius: 14px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
@@ -54,6 +58,8 @@ st.markdown("""
             margin-right: 1rem;
             border-radius: 10px;
             border: 1px solid #444;
+            width: 100px;
+            height: auto;
         }
         .card-info {
             color: #ffffff;
@@ -121,7 +127,46 @@ categories = [
     ("Soccer", "soccer_cards.csv")
 ]
 
-# ... (rest of the logic remains unchanged)
+selected = st.radio("Select a category:", [label for label, _ in categories], horizontal=True)
+
+selected_file = next((file for label, file in categories if label == selected), None)
+
+if selected_file:
+    data_path = os.path.join("data", selected_file)
+    if os.path.exists(data_path):
+        df = pd.read_csv(data_path)
+
+        # Filters
+        search_term = st.text_input(f"Search {selected}")
+        df = df[df["Card"].str.contains(search_term, case=False)] if search_term else df
+
+        price_range = st.slider(f"Price Range ({selected})", 0, 500, (10, 100))
+        df = df[(df["Price"] >= price_range[0]) & (df["Price"] <= price_range[1])]
+
+        min_score = st.slider(f"Flip Score Min ({selected})", 0, 100, 10)
+        df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Avg Sold"] * 100).round(1)
+        df = df[df["Flip Score"] >= min_score]
+
+        sort_option = st.selectbox("Sort By", ["Flip Score (High to Low)", "Flip Score (Low to High)"])
+        df = df.sort_values("Flip Score", ascending=(sort_option == "Flip Score (Low to High)"))
+
+        # Display
+        st.markdown(f"""<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Best Flip Opportunities</h4>""", unsafe_allow_html=True)
+        with st.container():
+            for _, row in df.iterrows():
+                st.markdown("""
+                    <div class='baseball-tab'>
+                        <img class='card-img' src='""" + row["Image"] + """'>
+                        <div class='card-info'>
+                            <h4>""" + row["Card"] + """</h4>
+                            <div class='price'>💰 $""" + str(row["Price"]) + " | Avg: $" + str(row["Avg Sold"]) + "</div>
+                            <div class='flip-score'>🔥 Flip Score: """ + str(row["Flip Score"]) + "%</div>
+                            <a href='""" + row["Link"] + "' class='view-btn' target='_blank'>View on eBay</a>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+    else:
+        st.error(f"data/{selected_file} not found. Please upload it to /data.")
 
 # === FOOTER ===
 st.markdown("""
