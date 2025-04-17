@@ -110,7 +110,7 @@ with col_slider2:
     flip_score_min = st.slider("Flip Score Min", 0, 100, 10, key="score_slider")
 
 # === SAMPLE CARD DATA ===
-data = pd.read_csv("baseball_cards.csv")
+data = pd.read_csv("data/baseball_cards.csv")
 
 # === AUTOTAG BY KEYWORD ===
 def auto_tag(card_name):
