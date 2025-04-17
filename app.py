@@ -41,6 +41,11 @@ st.markdown("""
             color: #f0f0f0;
             font-weight: 500;
         }
+        .main-wrapper {
+            max-width: 1000px;
+            margin: auto;
+            padding: 2rem 1rem;
+        }
         .card-container {
             display: flex;
             flex-direction: column;
@@ -90,6 +95,16 @@ st.markdown("""
         .view-btn:hover {
             background-color: #218838;
         }
+        .css-1aehpvj {  /* category tab font size */
+            font-size: 16px !important;
+            font-weight: 500;
+        }
+        input, select {
+            font-size: 16px;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
         footer {
             text-align: center;
             color: #aaa;
@@ -116,6 +131,9 @@ st.markdown("""
         <h2 style='color: white;'>Built for collectors. Powered by alpha.</h2>
     </div>
 """, unsafe_allow_html=True)
+
+# === MAIN WRAPPER START ===
+st.markdown("<div class='main-wrapper'>", unsafe_allow_html=True)
 
 # === CATEGORY TABS ===
 categories = [
@@ -170,6 +188,9 @@ if selected_file:
                 """, unsafe_allow_html=True)
     else:
         st.error(f"data/{selected_file} not found. Please upload it to /data.")
+
+# === MAIN WRAPPER END ===
+st.markdown("</div>", unsafe_allow_html=True)
 
 # === FOOTER ===
 st.markdown("""
