@@ -1,7 +1,8 @@
-# AlphaSlabs Streamlit - Final Centered Filter Fix
+# AlphaSlabs Streamlit - Final Centered Filter Fix (Updated for Live Scraper Integration)
 import streamlit as st
 import pandas as pd
 import os
+import subprocess
 
 st.set_page_config(
     page_title="AlphaSlabs",
@@ -142,6 +143,16 @@ categories = [
 ]
 selected = st.radio("Select a category:", [label for label, _ in categories], horizontal=True)
 selected_file = next((file for label, file in categories if label == selected), None)
+
+# === Live Scrape Trigger ===
+if st.button(f"🔄 Refresh {selected} Listings from Mercari"):
+    keyword = f"psa 10 {selected.lower()}"
+    command = f"python3 mercari_scraper.py --keyword '{keyword}' --output data/{selected_file}"
+    try:
+        subprocess.run(command, shell=True, check=True)
+        st.success(f"✅ Refreshed data for {selected}!")
+    except Exception as e:
+        st.error(f"❌ Failed to scrape: {e}")
 
 if selected_file:
     path = os.path.join("data", selected_file)
