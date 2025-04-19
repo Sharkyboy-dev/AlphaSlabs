@@ -146,7 +146,7 @@ selected_file = next((file for label, file in categories if label == selected), 
 
 # === Live Scrape Trigger ===
 if st.button(f"🔄 Refresh {selected} Listings from Mercari"):
-    keyword = f"psa 10 {selected.lower()}"
+    keyword = f"{selected.lower()} cards"
     command = f"python3 mercari_scraper.py --keyword '{keyword}' --output data/{selected_file}"
     try:
         subprocess.run(command, shell=True, check=True)
