@@ -147,7 +147,7 @@ selected_file = next((file for label, file in categories if label == selected), 
 # === Live Scrape Trigger ===
 if st.button(f"🔄 Refresh {selected} Listings from Mercari"):
     keyword = f"{selected.lower()} cards"
-    command = f"python3 mercari_scraper.py --keyword '{keyword}' --output data/{selected_file}"
+    command = f"python3 /home/rtucker1987/AlphaSlabs/mercari_scraper.py --keyword '{keyword}' --output /home/rtucker1987/AlphaSlabs/data/{selected_file}"
     try:
         subprocess.run(command, shell=True, check=True)
         st.success(f"✅ Refreshed data for {selected}!")
