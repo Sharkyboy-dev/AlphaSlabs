@@ -1,13 +1,13 @@
 import os
 import csv
+import time
 from bs4 import BeautifulSoup
 import streamlit as st
 import pandas as pd
 
 
-# === HTML Parser ===
-def parse_mercari_html(uploaded_file):
-    soup = BeautifulSoup(uploaded_file, "html.parser")
+def parse_mercari_html(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
     items = soup.select("li[data-testid='ItemCell']")
 
     listings = []
@@ -28,7 +28,7 @@ def parse_mercari_html(uploaded_file):
         listings.append({
             "Card": title,
             "Price": price_float,
-            "Avg Sold": price_float,  # placeholder until eBay data
+            "Avg Sold": price_float,
             "Flip Score": 0.0,
             "Link": link,
             "Image": "https://via.placeholder.com/100"
@@ -38,6 +38,18 @@ def parse_mercari_html(uploaded_file):
     if not df.empty:
         df["Flip Score"] = ((df["Avg Sold"] - df["Price"]) / df["Avg Sold"] * 100).round(1)
     return df
+
+
+def save_mercari_html_to_csv(input_html_path, output_csv_path):
+    with open(input_html_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    df = parse_mercari_html(html_content)
+    if not df.empty:
+        os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
+        df.to_csv(output_csv_path, index=False)
+        print(f"✅ Saved {len(df)} listings to {output_csv_path}")
+    else:
+        print("⚠️ No listings found in the HTML.")
 
 
 # === Streamlit UI ===
@@ -68,7 +80,8 @@ def show_mercari_upload_ui():
 
             # Save locally for reuse
             os.makedirs("data", exist_ok=True)
-            output_path = os.path.join("data", "mercari_uploaded.csv")
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            output_path = os.path.join("data", f"mercari_upload_{timestamp}.csv")
             df.to_csv(output_path, index=False)
             st.download_button("📁 Download CSV", df.to_csv(index=False), file_name="mercari_results.csv")
         else:
