@@ -48,7 +48,7 @@ def show_mercari_upload_ui():
             padding: 2rem;
             background: #111;
             border-radius: 12px;
-            max-width: 600px;
+            max-width: 700px;
             margin: auto;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
@@ -65,9 +65,18 @@ def show_mercari_upload_ui():
         if not df.empty:
             st.success(f"✅ Parsed {len(df)} items")
             st.dataframe(df)
-            csv = df.to_csv(index=False)
-            st.download_button("📁 Download CSV", csv, file_name="mercari_results.csv")
+
+            # Save locally for reuse
+            os.makedirs("data", exist_ok=True)
+            output_path = os.path.join("data", "mercari_uploaded.csv")
+            df.to_csv(output_path, index=False)
+            st.download_button("📁 Download CSV", df.to_csv(index=False), file_name="mercari_results.csv")
         else:
             st.warning("⚠️ No card listings found in the uploaded HTML.")
     st.markdown("</div>", unsafe_allow_html=True)
 
+
+# === Entry Point for External Use in app.py ===
+if __name__ == "__main__":
+    st.set_page_config(page_title="Mercari HTML Parser", layout="centered")
+    show_mercari_upload_ui()
