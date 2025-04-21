@@ -8,17 +8,21 @@ import pandas as pd
 
 def parse_mercari_html(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
+
+    # Attempt alternate selectors if main one fails
     items = soup.select("li[data-testid='ItemCell']")
+    if not items:
+        items = soup.select("div[data-testid='ItemCellWrapper']") or soup.select("div[class*='item-card']")
 
     listings = []
     for item in items:
-        title_tag = item.select_one("p")
-        price_tag = item.select_one("div[data-testid='ItemCellPrice']")
+        title_tag = item.select_one("p") or item.select_one("h3")
+        price_tag = item.select_one("div[data-testid='ItemCellPrice']") or item.select_one("span[class*='price']")
         link_tag = item.select_one("a")
 
         title = title_tag.get_text(strip=True) if title_tag else "No title"
         price = price_tag.get_text(strip=True) if price_tag else "$0"
-        link = f"https://www.mercari.com{link_tag['href']}" if link_tag else "No link"
+        link = f"https://www.mercari.com{link_tag['href']}" if link_tag and link_tag.has_attr("href") else "No link"
 
         try:
             price_float = float(price.replace("$", "").replace(",", ""))
@@ -69,23 +73,27 @@ def show_mercari_upload_ui():
 
     st.markdown("<div class='upload-box'>", unsafe_allow_html=True)
     st.header("📥 Upload Mercari HTML")
-    uploaded_file = st.file_uploader("Upload saved .html page from Mercari", type=["html"])
+    uploaded_file = st.file_uploader("Upload saved .html page from Mercari", type=["html", "htm"])
 
     if uploaded_file:
-        html_str = uploaded_file.read().decode("utf-8")
-        df = parse_mercari_html(html_str)
-        if not df.empty:
-            st.success(f"✅ Parsed {len(df)} items")
-            st.dataframe(df)
+        try:
+            html_str = uploaded_file.read().decode("utf-8", errors="ignore")
+            df = parse_mercari_html(html_str)
+            if not df.empty:
+                st.success(f"✅ Parsed {len(df)} items")
+                st.dataframe(df)
 
-            # Save locally for reuse
-            os.makedirs("data", exist_ok=True)
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            output_path = os.path.join("data", f"mercari_upload_{timestamp}.csv")
-            df.to_csv(output_path, index=False)
-            st.download_button("📁 Download CSV", df.to_csv(index=False), file_name="mercari_results.csv")
-        else:
-            st.warning("⚠️ No card listings found in the uploaded HTML.")
+                # Save locally for reuse
+                os.makedirs("data", exist_ok=True)
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                output_path = os.path.join("data", f"mercari_upload_{timestamp}.csv")
+                df.to_csv(output_path, index=False)
+                st.download_button("📁 Download CSV", df.to_csv(index=False), file_name="mercari_results.csv")
+            else:
+                st.warning("⚠️ No card listings found in the uploaded HTML.")
+        except Exception as e:
+            st.error(f"❌ Failed to parse file: {e}")
+
     st.markdown("</div>", unsafe_allow_html=True)
 
 
