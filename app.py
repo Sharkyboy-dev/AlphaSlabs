@@ -207,3 +207,10 @@ st.markdown("""
         © 2025 AlphaSlabs · All rights reserved · Built by Sharkyboy-dev
     </footer>
 """, unsafe_allow_html=True)
+
+# === OPTIONAL MERCARI HTML UPLOAD TOOL ===
+from mercari_upload_tool import show_mercari_upload_ui
+
+st.markdown("---")
+show_mercari_upload_ui()
+
