@@ -144,16 +144,6 @@ categories = [
 selected = st.radio("Select a category:", [label for label, _ in categories], horizontal=True)
 selected_file = next((file for label, file in categories if label == selected), None)
 
-# === Live Scrape Trigger ===
-if st.button(f"🔄 Refresh {selected} Listings from Mercari"):
-    keyword = f"{selected.lower()} cards"
-    command = f"python3 /home/rtucker1987/AlphaSlabs/mercari_scraper.py --keyword '{keyword}' --output /home/rtucker1987/AlphaSlabs/data/{selected_file}"
-    try:
-        subprocess.run(command, shell=True, check=True)
-        st.success(f"✅ Refreshed data for {selected}!")
-    except Exception as e:
-        st.error(f"❌ Failed to scrape: {e}")
-
 if selected_file:
     path = os.path.join("data", selected_file)
     if os.path.exists(path):
@@ -181,8 +171,8 @@ if selected_file:
         # === DISPLAY CARDS ===
         st.markdown("<h4 style='color:#00ffaa; margin-top:2rem;'>🔥 Flip Opportunities</h4>", unsafe_allow_html=True)
         for _, row in df.iterrows():
-            btn_label = "View on Mercari" if "mercari.com" in row["Link"] else "View on eBay"
-            btn_color = "#ff6f61" if "mercari.com" in row["Link"] else "#1e88e5"
+            btn_label = "View Listing"
+            btn_color = "#1e88e5"
 
             st.markdown(f"""
                 <div class='baseball-tab'>
@@ -207,10 +197,3 @@ st.markdown("""
         © 2025 AlphaSlabs · All rights reserved · Built by Sharkyboy-dev
     </footer>
 """, unsafe_allow_html=True)
-
-# === OPTIONAL MERCARI HTML UPLOAD TOOL ===
-from mercari_upload_tool import show_mercari_upload_ui
-
-st.markdown("---")
-show_mercari_upload_ui()
-
